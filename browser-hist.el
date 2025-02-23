@@ -9,7 +9,7 @@
 ;; Version: 0.0.1
 ;; Keywords: convenience hypermedia matching tools
 ;; Homepage: https://github.com/agzam/browser-hist.el
-;; Package-Requires: ((emacs "27"))
+;; Package-Requires: ((emacs "28.1"))
 ;;
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;
@@ -168,9 +168,10 @@ If STRINGS is nil return the latest 100 entries."
                         browser-hist-default-browser))))))
     (cl-loop for (desc link) in (browser-hist--sqlite-select db full-query)
              collect (cons (string-trim-right
-                            (replace-regexp-in-string
-                             (if browser-hist-ignore-query-params "\\?.*" "")
-                             "" link))
+                            (if-let* ((browser-hist-ignore-query-params)
+                                      (pos (string-search "?" link)))
+                                (substring link 0 pos)
+                              link))
                            desc))))
 
 (defun browser-hist--completion-table (s _ flag)
